@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { useSchedule } from '../Schedule/ScheduleContext'
-import {Plus, Trash2} from 'lucide-react'
+import {Plus} from 'lucide-react'
 import ScheduleForm from '../Schedule/ScheduleForm'
 import ScheduleList from '../Schedule/ScheduleList'
 const AdminPainel = () => {
@@ -28,7 +28,7 @@ const AdminPainel = () => {
         setHorarioEdit(null)
     }
   return (
-    <div className='bg-white rounded-lg shadow-smp-8'>
+    <div className=' rounded-lg shadow-smp-8'>
       <div className='flex justify-between items-center mb-8 pb-6 border-b-2 border-gray-200'>
         <div>
             <h2 className='text-3xl font-bold text-gray-900 mb-2'>Painel Administrativo</h2>

@@ -90,10 +90,10 @@ const ScheduleForm = ({horarioEdit, onSave, onCancel}) => {
                     </div>
                 )}
 
-                {/* Campos de período - sempre na mesma posição */}
+                {/* Campos de período */}
                 {formData.periodoId === 'novo' && (
                     <div className='flex flex-col gap-2'>
-                        <label className='text-sm font-semibold text-gray-700'>Semestre*</label>
+                        <label className='text-sm font-semibold text-gray-700'>Semestre/Mês/Semana*</label>
                         <input 
                             className={inputClasses}
                             value={formData.semestre}
@@ -104,7 +104,7 @@ const ScheduleForm = ({horarioEdit, onSave, onCancel}) => {
                     </div>
                 )}
 
-                {formData.periodoId && formData.periodoId !== 'novo' && (
+                {/* {formData.periodoId && formData.periodoId !== 'novo' && (
                     <div className='flex flex-col gap-2'>
                         <label className='text-sm font-semibold text-gray-700'>Semestre</label>
                         <input 
@@ -114,7 +114,7 @@ const ScheduleForm = ({horarioEdit, onSave, onCancel}) => {
                             readOnly
                         />
                     </div>
-                )}
+                )} */}
 
                 {formData.periodoId && (
                     <>
