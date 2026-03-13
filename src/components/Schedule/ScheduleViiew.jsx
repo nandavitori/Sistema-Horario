@@ -6,7 +6,7 @@ import MonthCalendar from '../Calendar/MonthCalendar'
 import ExportICSModal from '../Calendar/ExportICSModal'
 import { Calendar, LayoutGrid, Download } from 'lucide-react'
 
-const ScheduleViiew = ({ readOnly }) => {
+const ScheduleViiew = ({ readOnly, isAdmin = false }) => {
     const { cursos, salas, periodos, periodoAtivo, setPeriodoAtivo } = useSchedule()
     const [filters, setFilters]       = useState({ cursoId: '', salaId: '', diaSemana: '' })
     const [viewMode, setViewMode]     = useState('grade') // 'grade' | 'calendario'
@@ -44,7 +44,8 @@ const ScheduleViiew = ({ readOnly }) => {
 
                 <div className='flex flex-col sm:flex-row items-end gap-3'>
                     {/* Botão exportar .ics */}
-                    <button
+                   {isAdmin && (
+                     <button
                         onClick={() => setShowExport(true)}
                         className='flex items-center gap-2 px-4 py-2 rounded-lg border font-semibold text-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md'
                         style={{ borderColor: '#1c1aa3', color: '#1c1aa3', background: '#1c1aa308' }}
@@ -52,6 +53,7 @@ const ScheduleViiew = ({ readOnly }) => {
                         <Download size={15} />
                         Exportar .ics
                     </button>
+                   )}
 
                     {/* Seletor de período */}
                     {periodos.length > 0 && (

@@ -253,7 +253,7 @@ const AdminPainel = () => {
                                 onCancel={handleCancel}
                             />
                         )}
-                        <ScheduleViiew />
+                        <ScheduleViiew isAdmin={true} />
                     </div>
                 )}
 
