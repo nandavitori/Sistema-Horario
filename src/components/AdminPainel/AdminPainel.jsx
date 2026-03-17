@@ -139,6 +139,18 @@ const AdminPainel = () => {
     const handleEdit   = (h) => { setHorarioEdit(h); setShowForm(true) }
     const handleCancel = ()  => { setShowForm(false); setHorarioEdit(null) }
 
+    const handleGoToCadastros = (tab) => {
+        sessionStorage.setItem('cadastrosTab', tab)
+        setShowForm(false)
+        setActiveTab('cadastros')
+    }
+
+    const handleReturnToHorarios = () => {
+        setActiveTab('horarios')
+        setShowForm(true)
+        setHorarioEdit(null)
+    }
+
     // ── Handlers: Solicitações ──
     const handleAprovar = (id) => {
         setSolicitacoes(prev =>
@@ -237,6 +249,8 @@ const AdminPainel = () => {
                                 horarioEdit={horarioEdit}
                                 onSave={handleSave}
                                 onCancel={handleCancel}
+                                onGoToCadastros={handleGoToCadastros}
+                                restoreDraft={!horarioEdit}
                             />
                         )}
                         <ScheduleViiew isAdmin={true} />
@@ -429,7 +443,7 @@ const AdminPainel = () => {
 
                 {/* ════ ABA: CADASTROS ════ */}
                 {activeTab === 'cadastros' && (
-                    <DataManager />
+                    <DataManager onReturnToHorarios={handleReturnToHorarios} />
                 )}
             </div>
 

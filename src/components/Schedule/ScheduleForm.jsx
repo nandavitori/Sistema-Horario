@@ -17,7 +17,7 @@ const STEPS = [
     { id: 5, label: 'Confirmação',       icon: Check },
 ]
 
-const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros }) => {
+const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros, restoreDraft }) => {
     const { cursos, salas, periodos, professores, disciplinas } = useSchedule()
     const [step, setStep] = useState(1)
     const [form, setForm] = useState({
@@ -28,9 +28,10 @@ const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros }) => {
 
     // Restaura rascunho ao voltar do Cadastros
     useEffect(() => {
+        if (!restoreDraft || horarioEdit) return
         const draft = sessionStorage.getItem('scheduleFormDraft')
         const draftStep = sessionStorage.getItem('scheduleFormStep')
-        if (draft && !horarioEdit) {
+        if (draft) {
             try {
                 setForm(JSON.parse(draft))
                 if (draftStep) setStep(parseInt(draftStep))
@@ -38,22 +39,22 @@ const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros }) => {
             sessionStorage.removeItem('scheduleFormDraft')
             sessionStorage.removeItem('scheduleFormStep')
         }
-    }, [])
+    }, [restoreDraft])
 
     useEffect(() => {
         if (horarioEdit) {
             const p = periodos.find(p => p.id === horarioEdit.periodoId)
             setForm({
                 periodoId:     String(horarioEdit.periodoId || ''),
-                dataInicio:    horarioEdit.dataInicio  || p?.dataInicio || '',
-                dataFim:       horarioEdit.dataFim     || p?.dataFim    || '',
-                diaSemana:     horarioEdit.diaSemana   || '',
+                dataInicio:    horarioEdit.dataInicio   || p?.dataInicio || '',
+                dataFim:       horarioEdit.dataFim      || p?.dataFim    || '',
+                diaSemana:     horarioEdit.diaSemana    || '',
                 horarioInicio: horarioEdit.horarioInicio || '',
-                horarioFim:    horarioEdit.horarioFim  || '',
-                salaId:        String(horarioEdit.salaId       || ''),
-                disciplinaId:  String(horarioEdit.disciplinaId || horarioEdit.disciplina?.id || ''),
-                cursoId:       String(horarioEdit.cursoId      || ''),
-                professorId:   String(horarioEdit.professorId  || horarioEdit.professor?.id  || ''),
+                horarioFim:    horarioEdit.horarioFim   || '',
+                salaId:        String(horarioEdit.salaId        || ''),
+                disciplinaId:  String(horarioEdit.disciplinaId  || horarioEdit.disciplina?.id || ''),
+                cursoId:       String(horarioEdit.cursoId       || ''),
+                professorId:   String(horarioEdit.professorId   || horarioEdit.professor?.id  || ''),
             })
         }
     }, [horarioEdit, periodos])
@@ -65,6 +66,7 @@ const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros }) => {
         setForm(f => ({ ...f, periodoId: id, dataInicio: p?.dataInicio || '', dataFim: p?.dataFim || '' }))
     }
 
+    // Salva rascunho e redireciona para Cadastros na aba correta
     const handleGoTo = (tab) => {
         sessionStorage.setItem('scheduleFormDraft', JSON.stringify(form))
         sessionStorage.setItem('scheduleFormStep', String(step))
@@ -99,7 +101,6 @@ const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros }) => {
     const cur = STEPS[step - 1]
     const StepIcon = cur.icon
 
-    // Botão de cadastrar que redireciona
     const CadastrarBtn = ({ label, tab }) => (
         <button type="button" onClick={() => handleGoTo(tab)}
             className="shrink-0 h-11 px-4 flex items-center gap-1.5 rounded-xl border border-gray-200 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all text-xs font-semibold whitespace-nowrap">
@@ -109,19 +110,16 @@ const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros }) => {
         </button>
     )
 
-    // Card de preview quando algo está selecionado
-    const PreviewCard = ({ icon: Icon, title, subtitle, color = '#4f46e5' }) => (
-        <div className="flex items-center gap-4 p-4 rounded-xl border"
-            style={{ borderColor: color + '30', background: color + '08' }}>
-            <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: color + '18' }}>
-                <Icon size={16} style={{ color }} />
+    const PreviewCard = ({ icon: Icon, title, subtitle }) => (
+        <div className="flex items-center gap-4 p-4 rounded-xl border border-indigo-100 bg-indigo-50">
+            <div className="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center">
+                <Icon size={16} className="text-indigo-600" />
             </div>
             <div className="flex-1">
-                <p className="font-bold text-sm" style={{ color: color + 'dd' }}>{title}</p>
-                {subtitle && <p className="text-xs mt-0.5" style={{ color: color + '80' }}>{subtitle}</p>}
+                <p className="font-bold text-indigo-900 text-sm">{title}</p>
+                {subtitle && <p className="text-xs text-indigo-400 mt-0.5">{subtitle}</p>}
             </div>
-            <Check size={15} style={{ color }} />
+            <Check size={15} className="text-indigo-500" />
         </div>
     )
 
@@ -215,9 +213,7 @@ const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros }) => {
                             <CadastrarBtn label="Cadastrar sala" tab="salas" />
                         </div>
                     </div>
-                    {form.salaId && getSala() && (
-                        <PreviewCard icon={Building2} title={getSala().nome} subtitle={getSala().tipo} />
-                    )}
+                    {form.salaId && getSala() && <PreviewCard icon={Building2} title={getSala().nome} subtitle={getSala().tipo} />}
                 </>}
 
                 {step === 3 && <>
@@ -260,9 +256,7 @@ const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros }) => {
                             <CadastrarBtn label="Cadastrar professor" tab="professores" />
                         </div>
                     </div>
-                    {form.professorId && getProfessor() && (
-                        <PreviewCard icon={User} title={getProfessor().nome} subtitle={getProfessor().email} />
-                    )}
+                    {form.professorId && getProfessor() && <PreviewCard icon={User} title={getProfessor().nome} subtitle={getProfessor().email} />}
                 </>}
 
                 {step === 5 && (
@@ -270,12 +264,12 @@ const ScheduleForm = ({ horarioEdit, onSave, onCancel, onGoToCadastros }) => {
                         <p className="text-sm text-gray-500 mb-5">Revise os dados antes de salvar.</p>
                         <div className="divide-y divide-gray-100 rounded-xl border border-gray-200 overflow-hidden">
                             {[
-                                { Icon: Calendar,     label: 'Período',    v: getPeriodo()?.semestre },
-                                { Icon: Clock,        label: 'Dia/Horário',v: `${form.diaSemana}, ${form.horarioInicio} – ${form.horarioFim}` },
-                                { Icon: Building2,    label: 'Sala',       v: getSala()?.nome },
-                                { Icon: BookOpen,     label: 'Disciplina', v: getDisciplina()?.nome },
-                                { Icon: GraduationCap,label: 'Curso',      v: getCurso() ? `${getCurso().nome}${getCurso().sigla ? ` (${getCurso().sigla})` : ''}` : '' },
-                                { Icon: User,         label: 'Professor',  v: getProfessor()?.nome },
+                                { Icon: Calendar,      label: 'Período',    v: getPeriodo()?.semestre },
+                                { Icon: Clock,         label: 'Dia/Horário',v: `${form.diaSemana}, ${form.horarioInicio} – ${form.horarioFim}` },
+                                { Icon: Building2,     label: 'Sala',       v: getSala()?.nome },
+                                { Icon: BookOpen,      label: 'Disciplina', v: getDisciplina()?.nome },
+                                { Icon: GraduationCap, label: 'Curso',      v: getCurso() ? `${getCurso().nome}${getCurso().sigla ? ` (${getCurso().sigla})` : ''}` : '' },
+                                { Icon: User,          label: 'Professor',  v: getProfessor()?.nome },
                             ].map(({ Icon, label, v }) => (
                                 <div key={label} className="flex items-center gap-4 px-5 py-4 bg-white hover:bg-gray-50 transition-colors">
                                     <div className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
